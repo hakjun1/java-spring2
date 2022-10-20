@@ -59,4 +59,12 @@ class UserDaoTest {
         userDao.add(user3);
         assertEquals(3,userDao.getCount());
     }
+
+    @Test
+    void findById() {
+        UserDao userDao = context.getBean("awsUserDao",UserDao.class);
+        //rs.next()에서 null발생
+        userDao.findById("30");
+
+    }
 }
