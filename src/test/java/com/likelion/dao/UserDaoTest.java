@@ -1,10 +1,12 @@
 package com.likelion.dao;
 
 import com.likelion.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,6 +20,14 @@ class UserDaoTest {
     @Autowired
     ApplicationContext context;
 
+    UserDao userDao;
+    @BeforeEach
+    void setup(){
+        this.userDao = context.getBean("awsUserDao",UserDao.class);
+
+
+    }
+
 
     @Test
     void addAndget() throws SQLException {
@@ -25,7 +35,6 @@ class UserDaoTest {
         User user2 = new User("2","hakjun2","456");
         User user3 = new User("3","hakjun3","789");
 
-        UserDao userDao = context.getBean("awsUserDao",UserDao.class);
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
@@ -48,7 +57,6 @@ class UserDaoTest {
         User user2 = new User("2","hakjun2","456");
         User user3 = new User("3","hakjun3","789");
 
-        UserDao userDao = context.getBean("awsUserDao",UserDao.class);
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
 
@@ -62,9 +70,10 @@ class UserDaoTest {
 
     @Test
     void findById() {
-        UserDao userDao = context.getBean("awsUserDao",UserDao.class);
+       assertThrows(EmptyResultDataAccessException.class,()->{
+           userDao.findById("30");
+       });
         //rs.next()에서 null발생
-        userDao.findById("30");
 
     }
 }

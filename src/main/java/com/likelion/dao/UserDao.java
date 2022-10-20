@@ -58,6 +58,7 @@ public class UserDao {
             pstmt.close();
             c.close();
 
+            //없으면 exception
             if(user==null)throw new EmptyResultDataAccessException(1);
 
             return user;
