@@ -52,14 +52,15 @@ public class UserDao {
                 user = new User(rs.getString("id"), rs.getString("name"),
                         rs.getString("password"));
 
-            };
+            }
+            ;
 
             rs.close();
             pstmt.close();
             c.close();
 
             //없으면 exception
-            if(user==null)throw new EmptyResultDataAccessException(1);
+            if (user == null) throw new EmptyResultDataAccessException(1);
 
             return user;
 
@@ -70,28 +71,67 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection c = connectionMaker.makeConnection();
-        PreparedStatement pstmt = c.prepareStatement("delete from users");
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        try {
+            c = connectionMaker.makeConnection();
+            pstmt = c.prepareStatement("delete from users");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {//error가 나도 실행되는 블럭
+             if (pstmt != null) {
+                 try {
+                     pstmt.close();
+                 } catch (SQLException e) {
+                 }
+             }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
 
-        pstmt.executeUpdate();
-        pstmt.close();
-        c.close();
     }
 
     public int getCount() throws SQLException {
 
-        Connection c = connectionMaker.makeConnection();
-        PreparedStatement pstmt = c.prepareStatement("select count(*) from users");
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            c = connectionMaker.makeConnection();
+            pstmt = c.prepareStatement("select count(*) from users");
+            rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
 
-        ResultSet rs = pstmt.executeQuery();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+                }
 
-        rs.next();
-        int count = rs.getInt(1);
-        rs.close();
-        pstmt.close();
-        c.close();
+            }
+        }
 
-        return count;
 
     }
 }
