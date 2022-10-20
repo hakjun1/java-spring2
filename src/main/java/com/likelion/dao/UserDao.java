@@ -19,7 +19,7 @@ public class UserDao {
     public void add(User user) {
         Connection c;
         try {
-            c= connectionMaker.makeConnection();
+            c = connectionMaker.makeConnection();
 
             // Query문 작성
             PreparedStatement pstmt = c.prepareStatement("INSERT INTO users(id, name, password) VALUES(?,?,?);");
@@ -62,8 +62,29 @@ public class UserDao {
 
     }
 
-    public static void main(String[] args) {
+    public void deleteAll() throws SQLException {
+        Connection c = connectionMaker.makeConnection();
+        PreparedStatement pstmt = c.prepareStatement("delete from users");
 
+        pstmt.executeUpdate();
+        pstmt.close();
+        c.close();
     }
 
+    public int getCount() throws SQLException {
+
+        Connection c = connectionMaker.makeConnection();
+        PreparedStatement pstmt = c.prepareStatement("select count(*) from users");
+
+        ResultSet rs = pstmt.executeQuery();
+
+        rs.next();
+        int count = rs.getInt(1);
+        rs.close();
+        pstmt.close();
+        c.close();
+
+        return count;
+
+    }
 }
