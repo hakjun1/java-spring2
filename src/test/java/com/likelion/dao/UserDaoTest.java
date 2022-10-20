@@ -13,17 +13,26 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
-@ExtendWith(SpringExtension.class)
+//@ExtendWith,@ContextConfiguration을해야 @Autowired를 사용할수있다
+@ExtendWith(SpringExtension.class)//스프링에있는 기능을 junit5에서 쓰기위함
 @ContextConfiguration(classes = UserDaoFactory.class)
 class UserDaoTest {
 
-    @Autowired
+    @Autowired//싱글톤으로 한번만 생성(@BeforeEach)
     ApplicationContext context;
-
     UserDao userDao;
+
+    User user1;
+    User user2;
+    User user3;
+
     @BeforeEach
     void setup(){
         this.userDao = context.getBean("awsUserDao",UserDao.class);
+        //System.out.println("before each");
+        this.user1 = new User("1","hakjun1","123");
+        this.user2 = new User("2","hakjun2","456");
+        this.user3 = new User("3","hakjun3","789");
 
 
     }
@@ -31,9 +40,6 @@ class UserDaoTest {
 
     @Test
     void addAndget() throws SQLException {
-        User user1 = new User("1","hakjun1","123");
-        User user2 = new User("2","hakjun2","456");
-        User user3 = new User("3","hakjun3","789");
 
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
@@ -53,9 +59,6 @@ class UserDaoTest {
 
     @Test
     void count() throws SQLException {
-        User user1 = new User("1","hakjun1","123");
-        User user2 = new User("2","hakjun2","456");
-        User user3 = new User("3","hakjun3","789");
 
         userDao.deleteAll();
         assertEquals(0, userDao.getCount());
