@@ -18,7 +18,6 @@ public class UserDao {
         this.jdbcContext = new JdbcContext(dataSource);
     }
 
-
     public void add(final User user) throws SQLException {
       jdbcContext.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
           @Override
@@ -51,12 +50,9 @@ public class UserDao {
         return user;
     }
 
+
     public void deleteAll() throws SQLException {
-        jdbcContext.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
-            public PreparedStatement makePreParedStatement(Connection connection) throws SQLException {
-                return connection.prepareStatement("delete from users");
-            }
-        });
+       this.jdbcContext.executeSql("delete from users");//쿼리만 넘기는 형태
 
     }
 

@@ -12,6 +12,16 @@ public class JdbcContext {
     public JdbcContext(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+    public void executeSql(String sql) {//deleteAll의 내용을 메소드로 분리
+        this.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreParedStatement(Connection connection) throws SQLException {
+                return connection.prepareStatement(sql);
+            }
+        });
+    }
+
+
 //종속성이 dataSource에 있으므로 생성자로 받아준다
     public void workjdbcContextWithStatmentStrategy(StatementStrategy stmt) {
         Connection c = null;
