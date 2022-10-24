@@ -1,9 +1,12 @@
 package com.likelion.domain;
 
 public class User {
-    private String id;
-    private String name;
-    private String password;
+    String id;
+    String name;
+    String password;
+
+    public User() {
+    }
 
     public User(String id, String name, String password) {
         this.id = id;
