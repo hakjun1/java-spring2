@@ -9,8 +9,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDao {
-    private DataSource dataSource;
-
+    private final DataSource dataSource;
+    //final
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -45,8 +45,19 @@ public class UserDao {
 
 
     public void add(User user) throws SQLException {
-      jdbcContextWithStatmentStrategy(new AddStrategy(user));
+      jdbcContextWithStatmentStrategy(new StatementStrategy() {
+          public PreparedStatement makePreParedStatement(Connection c) throws SQLException {
+              PreparedStatement ps = c.prepareStatement("INSERT INTO users(id,name,password) values(?,?,?)");
+              ps.setString(1, user.getId());
+              ps.setString(2, user.getName());
+              ps.setString(3, user.getPassword());
+              return ps;
+          }
+        });
     }
+
+
+
 
     public User get(String id) throws SQLException {
         Connection c = dataSource.getConnection();
@@ -65,7 +76,11 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatmentStrategy(new DeleteAllStrategy());
+        jdbcContextWithStatmentStrategy(new StatementStrategy() {
+            public PreparedStatement makePreParedStatement(Connection connection) throws SQLException {
+                return connection.prepareStatement("delete from users");
+            }
+        });
 
     }
 
