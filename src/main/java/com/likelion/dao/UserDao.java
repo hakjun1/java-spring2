@@ -1,96 +1,50 @@
 package com.likelion.dao;
 
 import com.likelion.domain.User;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDao {
     private final DataSource dataSource;
-    private final JdbcContext jdbcContext;
+    private final JdbcTemplate jdbcTemplate;
 
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcContext = new JdbcContext(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void add(final User user) throws SQLException {
-      jdbcContext.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
-          @Override
-          public PreparedStatement makePreParedStatement(Connection c) throws SQLException {
-              PreparedStatement ps = c.prepareStatement("INSERT INTO users(id,name,password) values(?,?,?)");
-              ps.setString(1, user.getId());
-              ps.setString(2, user.getName());
-              ps.setString(3, user.getPassword());
-              return ps;
-          }
-        });
+        this.jdbcTemplate.update("INSERT INTO users(id,name,password) values(?,?,?);",user.getId(),user.getName(),user.getPassword());
     }
 
 
-
-
     public User get(String id) throws SQLException {
-        Connection c = dataSource.getConnection();
-        PreparedStatement ps = c.prepareStatement("SELECT *FROM users WHERE id=?");
-        ps.setString(1, id);
+        String sql = "SELECT * FROM users WHERE id =?";
+        RowMapper<User> rowMapper = new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
+                return user;
+            }
+        };
+        return this.jdbcTemplate.queryForObject(sql, rowMapper, id);
 
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        User user = new User(rs.getString("id"), rs.getString("name"), rs.getString("password"));
-
-        rs.close();
-        ps.close();
-        c.close();
-
-        return user;
     }
 
 
     public void deleteAll() throws SQLException {
-       this.jdbcContext.executeSql("delete from users");//쿼리만 넘기는 형태
+        this.jdbcTemplate.update("delete from users");//쿼리만 넘기는 형태
 
     }
 
     public int getCount() throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            c = dataSource.getConnection();
-            ps = c.prepareStatement("SELECT COUNT(*) from users");
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                }
-            }
-
-        }
+        return this.jdbcTemplate.queryForObject("SELECT COUNT(*) from users;", Integer.class);
     }
 
-
 }
+
