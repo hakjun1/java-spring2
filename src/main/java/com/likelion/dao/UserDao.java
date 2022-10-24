@@ -44,8 +44,9 @@ public class UserDao {
 
 
 
-    public void add(User user) throws SQLException {
+    public void add(final User user) throws SQLException {
       jdbcContextWithStatmentStrategy(new StatementStrategy() {
+          @Override
           public PreparedStatement makePreParedStatement(Connection c) throws SQLException {
               PreparedStatement ps = c.prepareStatement("INSERT INTO users(id,name,password) values(?,?,?)");
               ps.setString(1, user.getId());
