@@ -10,42 +10,17 @@ import java.sql.SQLException;
 
 public class UserDao {
     private final DataSource dataSource;
-    //final
+    private final JdbcContext jdbcContext;
+
+
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.jdbcContext = new JdbcContext(dataSource);
     }
-
-    public void jdbcContextWithStatmentStrategy(StatementStrategy stmt) {
-    Connection c = null;
-    PreparedStatement ps = null;
-    try {
-        c = dataSource.getConnection();
-        ps = stmt.makePreParedStatement(c);
-        ps.executeUpdate();
-    } catch (SQLException e) {
-    } finally {
-        if (ps != null) {
-            try {
-                ps.close();
-            } catch (SQLException e) {
-            }
-        }
-        if (c != null) {
-            try {
-                c.close();
-            } catch (SQLException e) {
-            }
-        }
-
-    }
-
-
-}
-
 
 
     public void add(final User user) throws SQLException {
-      jdbcContextWithStatmentStrategy(new StatementStrategy() {
+      jdbcContext.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
           @Override
           public PreparedStatement makePreParedStatement(Connection c) throws SQLException {
               PreparedStatement ps = c.prepareStatement("INSERT INTO users(id,name,password) values(?,?,?)");
@@ -77,7 +52,7 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        jdbcContextWithStatmentStrategy(new StatementStrategy() {
+        jdbcContext.workjdbcContextWithStatmentStrategy(new StatementStrategy() {
             public PreparedStatement makePreParedStatement(Connection connection) throws SQLException {
                 return connection.prepareStatement("delete from users");
             }
